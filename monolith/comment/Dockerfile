@@ -1,4 +1,7 @@
 FROM ruby:2.2
+RUN gem install bson -v '4.2.2'
+RUN gem install bson_ext -v '1.5.1'
+RUN gem install puma -v '3.10.0'
 RUN apt-get update -qq && apt-get install -y build-essential
 ENV APP_HOME /app
 RUN mkdir $APP_HOME
