@@ -1,7 +1,7 @@
 version: '3.3'
+env_file: .env
 services:
   mongo_db:
-    env_file: .env
     image: mongo:${MONGO_VERSION}
     volumes:
       - post_db:/data/db
@@ -10,7 +10,6 @@ services:
         aliases:
           - post_db
   ui:
-    env_file: .env
     build: ./ui
     image: ${USERNAME}/ui:${UI_VERSION}
     ports:
@@ -20,7 +19,6 @@ services:
         aliases:
           - ui
   post:
-    env_file: .env
     build: ./post-py
     image: ${USERNAME}/post:${POST_VERSION}
     networks:
@@ -31,7 +29,6 @@ services:
         aliases:
           - post
   comment:
-    env_file: .env
     build: ./comment
     image: ${USERNAME}/comment:${COMMENT_VERSION}
     networks:
