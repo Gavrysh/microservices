@@ -1,3 +1,4 @@
+---
 version: '3.3'
 services:
   mongo_db:
@@ -8,49 +9,28 @@ services:
       back_net:
         aliases:
           - post_db
-
-  mongodb-exporter:
-    image: eses/mongodb_exporter:latest
-    command:
-      - '-mongodb.uri=mongodb://mongo_db:27017'
+          - comment_db
+  ui:
+    image: ${USERNAME}/${UI_IMG}:${UI_VER}
     ports:
-      - '9104:9104'
+      - ${UI_PORT}:${UI_PORT}/tcp
+    networks:
+      - front_net
+
+  post:
+    image: ${USERNAME}/${POST_IMG}:${POST_VER}
     networks:
       - back_net
       - front_net
 
-  ui:
-    build: ./ui
-    image: ${USERNAME}/ui:${UI_VERSION}
-    ports:
-      - ${UI_PORT}:9292/tcp
-    networks:
-      front_net:
-        aliases:
-          - ui
-  post:
-    build: ./post-py
-    image: ${USERNAME}/post:${POST_VERSION}
-    networks:
-      back_net:
-        aliases:
-          - post
-      front_net:
-        aliases:
-          - post
   comment:
-    build: ./comment
-    image: ${USERNAME}/comment:${COMMENT_VERSION}
+    image: ${USERNAME}/${COMMENT_IMG}:${COMMENT_VER}
     networks:
-      back_net:
-        aliases:
-          - comment
-      front_net:
-        aliases:
-          - comment
+      - back_net
+      - front_net
 
   prometheus:
-    image: ${USERNAME}/prometheus:${PROMETHEUS_VERSION}
+    image: ${USERNAME}/${PROMETHEUS_IMG}:${PROMETHEUS_VER}
     ports:
       - '9090:9090'
     networks:
@@ -60,6 +40,11 @@ services:
   node-exporter:
     image: prom/node-exporter:v0.15.0
     user: root
+    ports:
+      - '9100:9100'
+    networks:
+      - back_net
+      - front_net
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -68,31 +53,10 @@ services:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
-    ports:
-      - '9100:9100'
-    networks:
-      - back_net
-      - front_net
-
-  blackbox_exporter:
-    image: 1and1internet/blackbox_exporter:latest
-    ports:
-      - '9115:9115'
-    networks:
-      - back_net
-      - front_net
 
 volumes:
   post_db:
 
 networks:
   back_net:
-    ipam:
-      driver: default
-      config:
-        - subnet: "10.0.2.0/24"
   front_net:
-    ipam:
-      driver: default
-      config:
-        - subnet: "10.0.1.0/24"
