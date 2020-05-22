@@ -1,13 +1,16 @@
 FROM python:3.6.0-alpine
 
-WORKDIR /app
-ADD requirements.txt /app
-RUN pip install -r requirements.txt
-
-ADD . /app
-EXPOSE  5000
-
 ENV POST_DATABASE_HOST post_db
 ENV POST_DATABASE posts
+ENV APP_HOME /app
+
+WORKDIR $APP_HOME
+
+COPY requirements.txt $APP_HOME
+RUN apk add --no-cache --virtual .build-deps build-base \
+    && pip install --no-cache-dir -r $APP_HOME/requirements.txt \
+    && apk del .build-deps
+
+COPY . $APP_HOME
 
 ENTRYPOINT ["python3", "post_app.py"]
