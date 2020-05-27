@@ -31,6 +31,8 @@ services:
 
   prometheus:
     image: ${USERNAME}/${PROMETHEUS_IMG}:${PROMETHEUS_VER}
+    volumes:
+      - prometheus_data:/var/lib/prometheus
     ports:
       - '9090:9090'
     networks:
@@ -82,7 +84,7 @@ services:
       - front_net
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:latest
     volumes:
       - grafana_data:/var/lib/grafana
     environment:
@@ -96,7 +98,7 @@ services:
       - front_net
 
   alertmanager:
-    image: ${USER_NAME}/alertmanager
+    image: ${USER_NAME}/alertmanager:latest
     command:
       - '--config.file=/etc/alertmanager/config.yml'
     ports:
@@ -106,6 +108,7 @@ services:
 
 volumes:
   post_db:
+  prometheus_data:
   grafana_data:
 
 networks:
