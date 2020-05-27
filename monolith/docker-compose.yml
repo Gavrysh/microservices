@@ -34,7 +34,6 @@ services:
     ports:
       - '9090:9090'
     networks:
-      - back_net
       - front_net
 
   node-exporter:
@@ -43,7 +42,6 @@ services:
     ports:
       - '9100:9100'
     networks:
-      - back_net
       - front_net
     volumes:
       - /proc:/host/proc:ro
@@ -69,11 +67,46 @@ services:
     ports:
       - '9115:9115'
     networks:
-      - back_net
+      - front_net
+
+  cadvisor:
+    image: gcr.io/google-containers/cadvisor:v0.35.0
+    volumes:
+      - '/:/rootfs:ro'
+      - '/var/run:/var/run:rw'
+      - '/sys:/sys:ro'
+      - '/var/lib/docker/:/var/lib/docker:ro'
+    ports:
+      - '8080:8080'
+    networks:
+      - front_net
+
+  grafana:
+    image: grafana/grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=secret
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    networks:
+      - front_net
+
+  alertmanager:
+    image: ${USER_NAME}/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+    ports:
+      - 9093:9093
+    networks:
       - front_net
 
 volumes:
   post_db:
+  grafana_data:
 
 networks:
   back_net:
