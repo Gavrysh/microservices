@@ -35,18 +35,33 @@ scrape_configs:
        - http_2xx  # Look for a HTTP 200 response.
     static_configs:
       - targets:
-        - http://prometheus.io    # Target to probe with http.
-        - https://prometheus.io   # Target to probe with https.
-        - http://example.com:8080 # Target to probe with http on port 8080.
+        - https://oper-blog.com   # Target to probe with https.
+        - http://35.189.214.170:9292 # Target to probe with http on port 9292.
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
       - source_labels: [__param_target]
         target_label: instance
       - target_label: __address__
-        replacement: 34.78.67.182:9115  # The blackbox exporter's real hostname:port.
+        replacement:  35.189.214.170:9115  # The blackbox exporter's real hostname:port.
 
   - job_name: 'cadvisor'
     static_configs:
       - targets:
         - 'cadvisor:8080'
+
+  - job_name: 'post'
+    static_configs:
+      - targets:
+        - 'post:5000'
+
+rule_files:
+  - "alert.rules"
+
+alerting:
+  alertmanagers:
+  - scheme: http
+    static_configs:
+    - targets:
+      - "alertmanager:9093"
+
